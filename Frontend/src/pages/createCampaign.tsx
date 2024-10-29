@@ -1,19 +1,19 @@
-import { ChangeEvent, FormEvent, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FormField } from "../components/formField";
-import { loader, money } from "../assets";
-import { CustomButton } from "../components/customButton";
-import { ethers } from "ethers";
-import { checkIfImage } from "../utils";
-import { toast } from "sonner";
-import { StateContext } from "../contexts";
-import { Loader } from "../components/loader";
+import { ChangeEvent, FormEvent, useContext, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { FormField } from "../components/formField"
+import { loader, money } from "../assets"
+import { CustomButton } from "../components/customButton"
+import { ethers } from "ethers"
+import { checkIfImage } from "../utils"
+import { toast } from "sonner"
+import { StateContext } from "../contexts"
+import { Loader } from "../components/loader"
 
 export function CreateCampaign() {
 
-    const { createCampaign } = useContext(StateContext);
-    const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
+    const { createCampaign } = useContext(StateContext)
+    const navigate = useNavigate()
+    const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
         name: '',
         title: '',
@@ -21,58 +21,27 @@ export function CreateCampaign() {
         target: '',
         deadline: '',
         image: ''
-    });
+    })
 
     const handleFormFieldChange = (fieldName: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setForm({ ...form, [fieldName]: e.target.value });
-    };
-
-    const validateForm = () => {
-        if (!form.name || !form.title || !form.description || !form.target || !form.deadline || !form.image) {
-            toast.error("All fields are required");
-            return false;
-        }
-
-        const isValidEth = /^(\d+(\.\d+)?)$/.test(form.target);
-        if (!isValidEth) {
-            toast.error("Please enter a valid target amount in ETH");
-            return false;
-        }
-
-        return true;
-    };
+        setForm({ ...form, [fieldName]: e.target.value })
+    }
 
     const handleSubmit = async (event: FormEvent) => {
-
-
-        
-        event.preventDefault();
-
-        if (!validateForm()) return;
+        event.preventDefault()
 
         checkIfImage(form.image, async (exists) => {
             if (exists) {
-                setIsLoading(true);
-                try {
-                    await createCampaign({ 
-                        ...form, 
-                        target: ethers.utils.parseUnits(form.target, 18) 
-                    });
-                    toast.success("Campaign created successfully!");
-                    setForm({ name: '', title: '', description: '', target: '', deadline: '', image: '' }); // Reset form
-                    navigate('/');
-                } catch (error) {
-                    toast.error("Something went wrong during the creation process.");
-                } finally {
-                    setIsLoading(false);
-                }
+                setIsLoading(true)
+                await createCampaign({ ...form, target: ethers.utils.parseUnits(form.target, 18) })
+                setIsLoading(false)
+                navigate('/')
             } else {
-                toast.error("Provide a valid image URL.");
-                setForm((prevForm) => ({ ...prevForm, image: '' })); // Keep form state except for image
+                toast.error("Provide valid image URL")
+                setForm({ ...form, image: '' })
             }
-        });
-        
-    };
+        })
+    }
 
     return (
         <div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[10px] sm:p-10 p-4">
@@ -146,5 +115,5 @@ export function CreateCampaign() {
                 </div>
             </form>
         </div>
-    );
+    )
 }
